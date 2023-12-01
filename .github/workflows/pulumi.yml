@@ -7,13 +7,13 @@ on:
       - staging
     paths:
       - "./infra/**"
-      - "./.github/workflows/pulumi.yml"
+      - ".github/workflows/pulumi.yml"
   pull_request:
     branches:
       - staging
     paths:
       - "./infra/**"
-      - "./.github/workflows/pulumi.yml"
+      - ".github/workflows/pulumi.yml"
 
 env:
   GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
