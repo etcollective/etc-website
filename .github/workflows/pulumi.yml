@@ -45,7 +45,7 @@ jobs:
           cache-dependency-path: './infra/requirements.txt'
 
       - name: Install Dependencies 📝
-        run: pip install -r infra/requirements.txt
+        run: pip install -r requirements.txt
         working-directory: ${{ env.PULUMI_WORKING_DIRECTORY }}
 
       - name: Pulumi Preview 🕵️
