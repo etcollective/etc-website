@@ -57,6 +57,10 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
+      - name: Configure GCP Cred Helper 🤝
+        id: cred-helper
+        run: gcloud auth configure-docker us-west1-docker.pkg.dev
+
       - name: Docker Auth 🐋
         id: docker-auth
         uses: 'docker/login-action@v3'
