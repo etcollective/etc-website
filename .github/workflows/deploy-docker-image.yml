@@ -31,7 +31,7 @@ jobs:
       url: https://staging.etcollective.org
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install cosign ✍️
         if: github.event_name != 'pull_request'
@@ -44,7 +44,7 @@ jobs:
 
       - name: Authenticate to Google Cloud Platform ✔️
         id: auth
-        uses: 'google-github-actions/auth@v0'
+        uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
           token_format: 'access_token'
