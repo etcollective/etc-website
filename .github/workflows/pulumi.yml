@@ -54,7 +54,7 @@ jobs:
         with:
           command: preview
           refresh: true
-          stack-name: ${{ env.PULUMI_STACK_NAME }}
+          stack-name: ${{ vars.PULUMI_STACK_NAME }}
           comment-on-pr: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           work-dir: ${{ env.PULUMI_WORKING_DIRECTORY }}
@@ -64,5 +64,5 @@ jobs:
         uses: pulumi/actions@v4
         with:
           command: up
-          stack-name: ${{ env.PULUMI_STACK_NAME }}
+          stack-name: ${{ vars.PULUMI_STACK_NAME }}
           work-dir: ${{ env.PULUMI_WORKING_DIRECTORY }}
