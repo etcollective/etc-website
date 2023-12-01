@@ -1,5 +1,6 @@
-name: Preview or update Pulumi app [[ .PulumiStackName ]]
+name: Deploy Infrastructure
 on:
+  workflow_dispatch:
   push:
     branches:
       - staging
