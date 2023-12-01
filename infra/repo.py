@@ -31,6 +31,10 @@ docker_image = docker.Image(
         dockerfile='../Dockerfile',
         platform='linux/amd64'
     ),
+    registry=docker.RegistryArgs(
+        server=f'{region}-docker.pkg.dev',
+        username='_json_key',
+    ),
     image_name=repo_url.apply(lambda url: f'{url}/website:latest'),
     opts=pulumi.ResourceOptions(parent=docker_repo)
 )
