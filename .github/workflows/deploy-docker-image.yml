@@ -1,0 +1,89 @@
+# This workflow build and push a Docker container to Google Artifact Registry and deploy it on Cloud Run when a commit is pushed to the "production" branch
+#
+# Overview:
+#
+# 1. Authenticate to Google Cloud
+# 2. Authenticate Docker to Artifact Registry
+# 3. Build a docker container
+# 4. Publish it to Google Artifact Registry
+# 5. Deploy it to Cloud Run
+
+name: Build and Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ "staging" ]
+  pull_request:
+    branches: [ "staging" ]
+
+env:
+  GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
+  REGION: us-west1
+
+jobs:
+  deploy:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.etcollective.org
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+
+      - name: Install cosign ✍️
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v3.2.0
+        with:
+          cosign-release: "v2.1.1"
+
+      - name: Set up Docker Buildx 🐋
+        uses: docker/setup-buildx-action@v3.0.0
+
+      - name: Authenticate to Google Cloud Platform ✔️
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+          token_format: 'access_token'
+
+      - name: Docker Auth 🐋
+        id: docker-auth
+        uses: 'docker/login-action@v3'
+        with:
+          registry: ${{ env.REGION }}-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Extract Docker metadata 🐋
+        id: meta
+        uses: docker/metadata-action@v5.0.0
+        with:
+          images: ${{ vars.REPO }}
+
+      - name: Build and Push Container 🛠️
+        id: build-and-push
+        uses: docker/build-push-action@v5.1.0
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            "${{ vars.REPO}}:latest"
+            "${{ vars.REPO}}:${{ github.sha }}"
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Sign the published Docker image ✍️
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        # This step uses the identity token to provision an ephemeral certificate
+        # against the sigstore community Fulcio instance.
+        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
