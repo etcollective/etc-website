@@ -6,12 +6,14 @@ on:
     branches:
       - staging
     paths:
-      - './infra/*'
+      - "./infra/*"
+      - "./.github/workflows/pulumi.yml"
   pull_request:
     branches:
       - staging
     paths:
-      - './infra/*'
+      - "./infra/*"
+      - "./.github/workflows/pulumi.yml"
 
 env:
   GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
