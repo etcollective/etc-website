@@ -18,6 +18,7 @@ on:
 env:
   PULUMI_ACCESS_TOKEN: "${{ secrets.PULUMI_ACCESS_TOKEN }}"
   PULUMI_WORKING_DIRECTORY: infra
+  GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}""
 
 jobs:
   pulumi:
@@ -50,12 +51,6 @@ jobs:
       - name: Install Dependencies 📝
         run: pip install -r requirements.txt
         working-directory: ${{ env.PULUMI_WORKING_DIRECTORY }}
-
-      - name: Authenticate to Google Cloud ☁️
-        uses: google-github-actions/auth@v2.0.0
-        with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
-          project_id: etc-wordpress-site-staging
 
       - name: Pulumi Preview 🕵️
         if: ${{ github.event_name == 'pull_request' }}
