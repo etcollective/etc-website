@@ -52,6 +52,19 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ${{ env.PULUMI_WORKING_DIRECTORY }}
 
+      - name: Authenticate to Google Cloud ☁️
+        uses: google-github-actions/auth@v2.0.0
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Docker Auth 🐋
+        id: docker-auth
+        uses: 'docker/login-action@v3'
+        with:
+          registry: ${{ env.REGION }}-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GOOGLE_CREDENTIALS }}
+
       - name: Pulumi Preview 🕵️
         if: ${{ github.event_name == 'pull_request' }}
         uses: pulumi/actions@v4
