@@ -1,0 +1,35 @@
+# Wordpress - ignore core, configuration, examples, uploads and logs.
+# https://github.com/github/gitignore/blob/main/WordPress.gitignore
+
+# Core
+#
+# Note: if you want to stage/commit WP core files
+# you can delete this whole section/until Configuration.
+
+# Ignore everything under wp-files
+wp-content/
+# Whitelist
+!wp-content/plugins
+!wp-content/themes
+!wp-content/bcf-fonts
+
+# Configuration
+*wp-config.php
+!*wp-config-docker.php
+!*.htaccess
+
+# Uploads
+wp-content/uploads/
+
+# Log files
+*.log
+
+# htaccess
+*/.htaccess
+
+# Sensitive Files
+ca-certificate.crt
+*.sql
+
+# IDEs
+.idea
