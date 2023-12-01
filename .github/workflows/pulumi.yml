@@ -6,19 +6,19 @@ on:
     branches:
       - staging
     paths:
-      - "./infra/**"
+      - "infra/**"
       - ".github/workflows/pulumi.yml"
   pull_request:
     branches:
       - staging
     paths:
-      - "./infra/**"
+      - "infra/**"
       - ".github/workflows/pulumi.yml"
 
 env:
   GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
   PULUMI_ACCESS_TOKEN: "${{ secrets.PULUMI_ACCESS_TOKEN }}"
-  PULUMI_WORKING_DIRECTORY: ./infra
+  PULUMI_WORKING_DIRECTORY: infra
 
 jobs:
   pulumi:
@@ -45,7 +45,7 @@ jobs:
           cache-dependency-path: './infra/requirements.txt'
 
       - name: Install Dependencies 📝
-        run: pip install -r ./infra/requirements.txt
+        run: pip install -r infra/requirements.txt
         working-directory: ${{ env.PULUMI_WORKING_DIRECTORY }}
 
       - name: Pulumi Preview 🕵️
