@@ -34,12 +34,6 @@ jobs:
       contents: 'read'
       id-token: 'write'
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
     environment:
       name: staging
       url: https://staging.etcollective.org
@@ -85,7 +79,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             "${{ vars.REPO}}:latest"
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64, linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
