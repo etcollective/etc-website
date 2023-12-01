@@ -17,11 +17,10 @@ apis = [
     'sqladmin.googleapis.com',
     'artifactregistry.googleapis.com',
     'iamcredentials.googleapis.com',
+    'cloudresourcemanager.googleapis.com',
 ]
 
 # Setup Project
-org = gcp.organizations.get_organization(domain=zone)
-
 folder = gcp.organizations.get_folder(folder=f'{folder_id}')
 
 project = gcp.organizations.Project(

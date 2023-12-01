@@ -8,6 +8,7 @@ gcp_config = pulumi.Config('gcp')
 region = gcp_config.get('region')
 config = pulumi.Config()
 image = config.get('image')
+stack = pulumi.get_stack()
 
 # Setup Service Account
 cloud_run_sa = gcp.serviceaccount.Account(
@@ -44,7 +45,7 @@ volume_name = 'wp-files'
 service = gcp.cloudrunv2.Service(
     'wordpress-cloudrun-service',
     location=region,
-    name='wordpress-site',
+    name=f'{stack}-wordpress-site',
     ingress='INGRESS_TRAFFIC_ALL',
     traffics=[
         gcp.cloudrunv2.ServiceTrafficArgs(

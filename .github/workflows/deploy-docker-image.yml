@@ -27,7 +27,6 @@ on:
       - "wp-content/*"
 
 env:
-  GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
   REGION: us-west1
 
 jobs:

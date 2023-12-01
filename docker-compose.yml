@@ -2,6 +2,7 @@ version: "3.1"
 
 services:
   wordpress:
+#    image: us-west1-docker.pkg.dev/etc-wordpress-site-staging/website-staging/website:latest
     container_name: wordpress
     build:
       context: .

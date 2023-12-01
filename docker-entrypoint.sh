@@ -1,5 +1,3 @@
-#!/bin/bash
-# Template from https://github.com/docker-library/wordpress/blob/master/latest/php8.2/apache/docker-entrypoint.sh
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
@@ -98,9 +96,8 @@ if [[ "$1" == apache2* ]] || [ "$1" = 'php-fpm' ]; then
 	fi
 fi
 
-chown -R www-data:www-data /var/www/html/wp-content
-chmod -R 755 /var/www/html/wp-content
-echo "Updating URLs"
+#chown -R www-data:www-data /var/www/html/wp-content
+#chmod -R 755 /var/www/html/wp-content
 
 echo "Rewriting permalinks"
 wp --allow-root rewrite flush && wp --allow-root rewrite structure '/%postname%/'
