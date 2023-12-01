@@ -1,6 +1,7 @@
 import pulumi
 import pulumi_gcp as gcp
-from project import project
+
+from project import project, service
 
 # Setup Config
 config = pulumi.Config('network')
@@ -12,6 +13,7 @@ network = gcp.compute.Network(
     name=network_name,
     project=project.project_id,
     auto_create_subnetworks=False,
+    opts=pulumi.ResourceOptions(depends_on=[service]),
 )
 
 subnet = gcp.compute.Subnetwork(

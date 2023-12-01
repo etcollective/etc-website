@@ -1,6 +1,7 @@
 import pulumi
 import pulumi_gcp as gcp
-from project import project
+
+from project import project, restricted_sharing_policy
 
 # Setup Vars
 gcp_config = pulumi.Config('gcp')
@@ -16,15 +17,25 @@ assets_bucket = gcp.storage.Bucket(
     opts=pulumi.ResourceOptions(protect=False),
 )
 
+public_bucket_org_policy = gcp.projects.OrganizationPolicy(
+    'org-policy-allow-public-access',
+    boolean_policy=gcp.projects.OrganizationPolicyBooleanPolicyArgs(
+        enforced=False,
+    ),
+    constraint='storage.publicAccessPrevention',
+    project=project.project_id,
+    opts=pulumi.ResourceOptions(parent=project, delete_before_replace=True),
+)
+
 allow_public_access = gcp.storage.BucketIAMBinding(
     'assets-bucket-public-access',
     bucket=assets_bucket.name,
     role='roles/storage.objectViewer',
-    members=[
-        'allUsers',
-        'allAuthenticatedUsers'
-    ],
-    opts=pulumi.ResourceOptions(parent=assets_bucket)
+    members=['allUsers', 'allAuthenticatedUsers'],
+    opts=pulumi.ResourceOptions(
+        parent=assets_bucket,
+        depends_on=[public_bucket_org_policy, restricted_sharing_policy],
+    ),
 )
 
 # Setup IAM Permissions
@@ -32,8 +43,10 @@ service_account = gcp.serviceaccount.Account(
     'assets-bucket-service-account',
     account_id=f'{stack}-wp-stateless',
     display_name=f'{stack} WP-Stateless',
-    project=project.project_id,
-    opts=pulumi.ResourceOptions(parent=assets_bucket, depends_on=[assets_bucket])
+    project=assets_bucket.project,
+    opts=pulumi.ResourceOptions(
+        parent=assets_bucket, depends_on=[assets_bucket]
+    ),
 )
 
 sa_binding = gcp.storage.BucketIAMBinding(
@@ -43,7 +56,7 @@ sa_binding = gcp.storage.BucketIAMBinding(
     members=[
         service_account.email.apply(lambda email: f'serviceAccount:{email}')
     ],
-    opts=pulumi.ResourceOptions(parent=service_account)
+    opts=pulumi.ResourceOptions(parent=service_account),
 )
 
 # Setup Outputs

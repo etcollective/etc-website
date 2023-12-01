@@ -5,7 +5,8 @@ config:
   etc-wordpress:billing-account:
     secure: AAABAD5mTsl+wNBZ4NKZOsdtB/R0LCZ6XhPT9pc+Pxf2CB31k2GDcxd9vXAUOrrWzFPgfg==
   etc-wordpress:folderId: "1039929329332"
-  etc-wordpress:image: cdiaz3827/etc-staging:latest
+  etc-wordpress:image: us-west1-docker.pkg.dev/etc-wordpress-site-staging/website-staging/website:latest
+  etc-wordpress:url: https://staging.etcollective.org
   etc-wordpress:zone: etcollective.org
   gcp:project: etc-wordpress-site-staging
   gcp:region: us-west1

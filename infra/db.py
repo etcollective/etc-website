@@ -1,8 +1,9 @@
 import pulumi
 import pulumi_gcp as gcp
+from pulumi_random import RandomPassword
+
 from network import network
 from project import project, service
-from pulumi_random import RandomPassword
 
 # Setup Config / Vars
 stack = pulumi.get_stack()
@@ -47,6 +48,15 @@ labels = {
     'component': 'database',
 }
 
+public_ip_org_policy = gcp.projects.OrganizationPolicy(
+    'org-policy-allow-public-ip-sql',
+    boolean_policy=gcp.projects.OrganizationPolicyBooleanPolicyArgs(
+        enforced=False,
+    ),
+    constraint='sql.restrictPublicIp',
+    project=project.project_id,
+    opts=pulumi.ResourceOptions(parent=project, delete_before_replace=True),
+)
 # Setup SQL Instance
 instance = gcp.sql.DatabaseInstance(
     'instance',
@@ -67,7 +77,10 @@ instance = gcp.sql.DatabaseInstance(
         ),
     ),
     deletion_protection=False if stack == 'staging' else True,
-    opts=pulumi.ResourceOptions(depends_on=[service_connection]),
+    project=project.project_id,
+    opts=pulumi.ResourceOptions(
+        depends_on=[service_connection, public_ip_org_policy]
+    ),
 )
 
 # Setup Database
@@ -75,6 +88,7 @@ database = gcp.sql.Database(
     database_name,
     instance=instance.name,
     name=database_name,
+    project=instance.project,
     opts=pulumi.ResourceOptions(parent=instance),
 )
 
@@ -84,6 +98,7 @@ user = gcp.sql.User(
     instance=instance.name,
     name=username,
     password=password.result,
+    project=instance.project,
     opts=pulumi.ResourceOptions(parent=instance),
 )
 
@@ -92,6 +107,7 @@ secret = gcp.secretmanager.Secret(
     'database-password',
     labels=labels,
     secret_id='pretix-db-pw',
+    project=instance.project,
     replication=gcp.secretmanager.SecretReplicationArgs(
         user_managed=gcp.secretmanager.SecretReplicationUserManagedArgs(
             replicas=[
@@ -120,15 +136,8 @@ db_bucket = gcp.storage.Bucket(
     name=f'etc-wordpress-db-{stack}',
     location=region,
     uniform_bucket_level_access=True,
+    project=instance.project,
     opts=pulumi.ResourceOptions(parent=instance),
-)
-
-sql_dump = gcp.storage.BucketObject(
-    'sql-bucket-file',
-    name='db.sql',
-    bucket=db_bucket.name,
-    source=pulumi.FileAsset('../db.sql'),
-    opts=pulumi.ResourceOptions(parent=db_bucket),
 )
 
 # Setup Outputs

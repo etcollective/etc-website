@@ -1,26 +1,54 @@
-import pulumi
 import pulumi_gcp as gcp
+from pulumi import Config, Output, ResourceOptions, export, get_stack
+
 from db import database, instance, secret, user
 from project import project, service
 
 # Setup Vars
-gcp_config = pulumi.Config('gcp')
+gcp_config = Config('gcp')
 region = gcp_config.get('region')
-config = pulumi.Config()
+config = Config()
 image = config.get('image')
-stack = pulumi.get_stack()
+zone = config.require('zone')
+stack = get_stack()
+cpu_limit = config.get('cpu-limit') or '1000m'
+memory_limit = config.get('memory-limit') or '512Mi'
+url = config.get('url') or zone
+
+# WordPress Config
+wp_config_extra = {
+    # General WP Config
+    'WP_SITEURL': url,
+    'WP_HOME': url,
+    'WP_ENVIRONMENT_TYPE': stack,
+    'WP_ALLOW_REPAIR': 'true',
+    'FORCE_SSL_ADMIN': 'true',
+    'AUTOMATIC_UPDATER_DISABLED': 'true',
+    'IMAGE_EDIT_OVERWRITE': 'true',
+    ## WP Stateless Plugin
+    'WP_STATELESS_MEDIA_CACHE_BUSTING': 'true',
+    'WP_STATELESS_MEDIA_MODE': 'ephemeral',
+}
+
+
+def serialize_wp_config(config):
+    return '\n'.join(
+        [f"define('{key}', '{value}');" for key, value in config.items()]
+    )
+
+
+serialized_config = serialize_wp_config(wp_config_extra)
 
 # Setup Service Account
 cloud_run_sa = gcp.serviceaccount.Account(
     'cloud-run-serviceaccount',
     account_id='wordpress-cloud-run',
     display_name='Wordpress Service Account',
+    project=project.project_id,
 )
 
 # The format 'serviceAccount:' needs to be prefixed for the member email
-formatted_member_email = pulumi.Output.concat(
-    'serviceAccount:', cloud_run_sa.email
-)
+formatted_member_email = Output.concat('serviceAccount:', cloud_run_sa.email)
 
 # Setup Service Account Permissions
 secret_access = gcp.secretmanager.SecretIamMember(
@@ -28,7 +56,8 @@ secret_access = gcp.secretmanager.SecretIamMember(
     secret_id=secret.id,
     role='roles/secretmanager.secretAccessor',
     member=formatted_member_email,
-    opts=pulumi.ResourceOptions(
+    project=project.project_id,
+    opts=ResourceOptions(
         parent=cloud_run_sa, depends_on=[cloud_run_sa, secret]
     ),
 )
@@ -56,6 +85,7 @@ service = gcp.cloudrunv2.Service(
     template=gcp.cloudrunv2.ServiceTemplateArgs(
         service_account=cloud_run_sa.email,
         scaling=gcp.cloudrunv2.ServiceTemplateScalingArgs(
+            min_instance_count=0,
             max_instance_count=1,
         ),
         execution_environment='EXECUTION_ENVIRONMENT_GEN2',
@@ -67,6 +97,10 @@ service = gcp.cloudrunv2.Service(
                         container_port=80,
                     )
                 ],
+                resources=gcp.cloudrunv2.ServiceTemplateContainerResourcesArgs(
+                    startup_cpu_boost=True,
+                    limits={'cpu': cpu_limit, 'memory': memory_limit},
+                ),
                 envs=[
                     gcp.cloudrunv2.ServiceTemplateContainerEnvArgs(
                         name='WORDPRESS_DB_HOST',
@@ -91,15 +125,19 @@ service = gcp.cloudrunv2.Service(
                             ),
                         ),
                     ),
+                    gcp.cloudrunv2.ServiceTemplateContainerEnvArgs(
+                        name='WORDPRESS_CONFIG_EXTRA',
+                        value=serialized_config,
+                    ),
                 ],
                 volume_mounts=[
                     gcp.cloudrunv2.ServiceTemplateContainerVolumeMountArgs(
                         name='cloudsql',
                         mount_path='/cloudsql',
                     ),
-                    gcp.cloudrunv2.ServiceTemplateContainerVolumeMountArgs(
-                        name=volume_name, mount_path='/var/www/html'
-                    ),
+                    # gcp.cloudrunv2.ServiceTemplateContainerVolumeMountArgs(
+                    #     name=volume_name, mount_path='/var/www/html'
+                    # ),
                 ],
             ),
         ],
@@ -110,7 +148,7 @@ service = gcp.cloudrunv2.Service(
                     instances=[instance.connection_name],
                 ),
             ),
-            gcp.cloudrunv2.ServiceTemplateVolumeArgs(name=volume_name),
+            # gcp.cloudrunv2.ServiceTemplateVolumeArgs(name=volume_name),
         ],
         # vpc_access=gcp.cloudrunv2.ServiceTemplateVpcAccessArgs(
         #     egress='ALL_TRAFFIC',
@@ -121,7 +159,8 @@ service = gcp.cloudrunv2.Service(
         #     ],
         # ),
     ),
-    opts=pulumi.ResourceOptions(depends_on=[service]),
+    project=project.project_id,
+    opts=ResourceOptions(depends_on=[service]),
 )
 
 allow_public_ingress = gcp.cloudrun.IamBinding(
@@ -129,9 +168,11 @@ allow_public_ingress = gcp.cloudrun.IamBinding(
     location=service.location,
     service=service.name,
     role='roles/run.invoker',
+    project=project.project_id,
     members=['allUsers'],
 )
+
 # Setup Outputs
-pulumi.export('Wordpress Service Account', cloud_run_sa.email)
-pulumi.export('Wordpress Cloud Run URI', service.uri)
-pulumi.export('Cloud Run Service', service.name)
+export('Wordpress Service Account', cloud_run_sa.email)
+export('Wordpress Cloud Run URI', service.uri)
+export('Cloud Run Service', service.name)
