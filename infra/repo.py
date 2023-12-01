@@ -1,5 +1,6 @@
 import pulumi
 import pulumi_gcp as gcp
+import pulumi_docker as docker
 
 from project import project, pulumi_stack, service
 
@@ -17,5 +18,23 @@ docker_repo = gcp.artifactregistry.Repository(
     opts=pulumi.ResourceOptions(depends_on=[service]),
 )
 
+# Build Repo URL
+repo_url = pulumi.Output.all(
+    region, project.project_id, docker_repo.name
+).apply(lambda url: f'{url[0]}-docker.pkg.dev/{url[1]}/{url[2]}')
+
+# Build and Push Image
+docker_image = docker.Image(
+    'wordpress-image',
+    build=docker.DockerBuildArgs(
+        context='../',
+        dockerfile='../Dockerfile',
+        platform='linux/amd64'
+    ),
+    image_name=repo_url.apply(lambda url: f'{url}/website:latest'),
+    opts=pulumi.ResourceOptions(parent=docker_repo)
+)
+
 # Setup Outputs
 pulumi.export('Artifact Registry Repo', docker_repo.id)
+pulumi.export('Docker Image', docker_image.image_name)

@@ -3,6 +3,7 @@ from pulumi import Config, Output, ResourceOptions, export, get_stack
 
 from db import database, instance, secret, user
 from project import project, service
+from repo import docker_image
 
 # Setup Vars
 gcp_config = Config('gcp')
@@ -91,7 +92,7 @@ service = gcp.cloudrunv2.Service(
         execution_environment='EXECUTION_ENVIRONMENT_GEN2',
         containers=[
             gcp.cloudrunv2.ServiceTemplateContainerArgs(
-                image=image,
+                image=docker_image.image_name,
                 ports=[
                     gcp.cloudrunv2.ServiceTemplateContainerPortArgs(
                         container_port=80,

@@ -53,7 +53,7 @@ public_ip_org_policy = gcp.projects.OrganizationPolicy(
     boolean_policy=gcp.projects.OrganizationPolicyBooleanPolicyArgs(
         enforced=False,
     ),
-    constraint='sql.restrictPublicIp',
+    constraint='constraints/sql.restrictPublicIp',
     project=project.project_id,
     opts=pulumi.ResourceOptions(parent=project, delete_before_replace=True),
 )

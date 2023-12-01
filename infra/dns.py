@@ -1,5 +1,7 @@
 import pulumi
 import pulumi_gcp as gcp
+import pulumi_google_native as gcp_native
+import pulumi_cloudflare as cloudflare
 
 from cloud_run import region, service
 from project import project, pulumi_stack
@@ -9,8 +11,10 @@ config = pulumi.Config()
 zone = config.get('zone')
 stack_name = pulumi.get_stack()
 
+# Build Desired Domain
 domain_name = zone if 'production' in stack_name else f'{stack_name}.{zone}'
 
+# Setup Cloud Run Domain Mapping
 wp_domain_mapping = gcp.cloudrun.DomainMapping(
     f'{pulumi_stack}-wp-domain-mapping',
     name=domain_name,

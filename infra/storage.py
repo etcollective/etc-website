@@ -1,12 +1,15 @@
 import pulumi
 import pulumi_gcp as gcp
 
-from project import project, restricted_sharing_policy
+from project import project
 
 # Setup Vars
 gcp_config = pulumi.Config('gcp')
 region = gcp_config.get('region')
 stack = pulumi.get_stack()
+config = pulumi.Config()
+zone = config.require('zone')
+url = config.get('url') or zone
 
 # Setup Bucket
 assets_bucket = gcp.storage.Bucket(
@@ -14,6 +17,14 @@ assets_bucket = gcp.storage.Bucket(
     location=region,
     name=f'{stack}-website-assets',
     project=project.project_id,
+    cors=[
+        gcp.storage.BucketCorArgs(
+            origins=[url],
+            methods=['GET'],
+            response_headers=['Content-Type'],
+            max_age_seconds=3600,
+        ),
+    ],
     opts=pulumi.ResourceOptions(protect=False),
 )
 
@@ -34,7 +45,7 @@ allow_public_access = gcp.storage.BucketIAMBinding(
     members=['allUsers', 'allAuthenticatedUsers'],
     opts=pulumi.ResourceOptions(
         parent=assets_bucket,
-        depends_on=[public_bucket_org_policy, restricted_sharing_policy],
+        depends_on=[public_bucket_org_policy],
     ),
 )
 

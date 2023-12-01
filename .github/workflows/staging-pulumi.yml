@@ -7,13 +7,13 @@ on:
       - staging
     paths:
       - "infra/**"
-      - ".github/workflows/pulumi.yml"
+      - ".github/workflows/staging-pulumi.yml"
   pull_request:
     branches:
       - staging
     paths:
       - "infra/**"
-      - ".github/workflows/pulumi.yml"
+      - ".github/workflows/staging-pulumi.yml"
 
 env:
   PULUMI_ACCESS_TOKEN: "${{ secrets.PULUMI_ACCESS_TOKEN }}"
@@ -28,13 +28,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Turnstyle
+      - name: Turnstyle 🚪
         if: ${{ github.event_name == 'push' }}
         uses: softprops/turnstyle@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Checkout 🛎️
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx 🐋
+        uses: docker/setup-buildx-action@v3.0.0
 
       - name: Install Python 🐍
         uses: actions/setup-python@v4
@@ -47,7 +51,7 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: ${{ env.PULUMI_WORKING_DIRECTORY }}
 
-      - name: Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud ☁️
         uses: google-github-actions/auth@v2.0.0
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'

@@ -1,0 +1,70 @@
+name: Deploy Production Infrastructure
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - production
+  pull_request:
+    branches:
+      - production
+
+env:
+  PULUMI_ACCESS_TOKEN: "${{ secrets.PULUMI_ACCESS_TOKEN }}"
+  PULUMI_WORKING_DIRECTORY: infra
+
+jobs:
+  pulumi:
+    name: Pulumi
+    environment:
+      name: production
+      url: https://etcollective.org
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Turnstyle 🚪
+        if: ${{ github.event_name == 'push' }}
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx 🐋
+        uses: docker/setup-buildx-action@v3.0.0
+
+      - name: Install Python 🐍
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          cache: pip
+          cache-dependency-path: 'infra/requirements.txt'
+
+      - name: Install Dependencies 📝
+        run: pip install -r requirements.txt
+        working-directory: ${{ env.PULUMI_WORKING_DIRECTORY }}
+
+      - name: Authenticate to Google Cloud ☁️
+        uses: google-github-actions/auth@v2.0.0
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Pulumi Preview 🕵️
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: pulumi/actions@v4
+        with:
+          command: preview
+          refresh: true
+          stack-name: ${{ vars.PULUMI_STACK_NAME }}
+          comment-on-pr: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          work-dir: ${{ env.PULUMI_WORKING_DIRECTORY }}
+
+      - name: Deploy Pulumi Update 🚀
+        if: ${{ github.event_name == 'push' }}
+        uses: pulumi/actions@v4
+        with:
+          command: up
+          stack-name: ${{ vars.PULUMI_STACK_NAME }}
+          work-dir: ${{ env.PULUMI_WORKING_DIRECTORY }}
