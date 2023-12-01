@@ -6,8 +6,8 @@
 # Note: if you want to stage/commit WP core files
 # you can delete this whole section/until Configuration.
 
-# Ignore everything under wp-files
-wp-content/
+# Ignore everything else under wp-content
+wp-content/*
 # Whitelist
 !wp-content/plugins
 !wp-content/themes
