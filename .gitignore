@@ -33,3 +33,7 @@ ca-certificate.crt
 
 # IDEs
 .idea
+
+#Python Venv
+*venv/
+*__pycache__/
