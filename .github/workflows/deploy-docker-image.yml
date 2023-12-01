@@ -14,12 +14,14 @@ on:
   push:
     branches: [ "staging" ]
     paths:
+      - ".github/workflows/deploy-docker-image.yml"
       - "Dockerfile"
       - "docker-*"
       - "wp-content/*"
   pull_request:
     branches: [ "staging" ]
     paths:
+      - ".github/workflows/deploy-docker-image.yml"
       - "Dockerfile"
       - "docker-*"
       - "wp-content/*"
