@@ -140,6 +140,7 @@ RUN set -eux; \
 ## Copy WP and WP CLI Installations
 COPY --chown=www-data:www-data --from=wp_builder /usr/src/wordpress /usr/src/wordpress
 COPY --chown=www-data:www-data --from=wp_cli_builder /usr/local/bin/wp /usr/local/bin/wp
+
 #WORKDIR /usr/src/wordpress
 #RUN set -eux; \
 #	find /etc/apache2 -name '*.conf' -type f -exec sed -ri -e "s!/var/www/html!$PWD!g" -e "s!Directory /var/www/!Directory $PWD!g" '{}' +; \

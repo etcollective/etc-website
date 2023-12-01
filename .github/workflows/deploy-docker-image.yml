@@ -13,8 +13,16 @@ name: Build and Deploy to Cloud Run
 on:
   push:
     branches: [ "staging" ]
+    paths:
+      - "Dockerfile"
+      - "docker-*"
+      - "wp-content/*"
   pull_request:
     branches: [ "staging" ]
+    paths:
+      - "Dockerfile"
+      - "docker-*"
+      - "wp-content/*"
 
 env:
   GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
