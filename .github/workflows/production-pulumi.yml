@@ -70,8 +70,6 @@ jobs:
           command: preview
           refresh: true
           stack-name: ${{ vars.PULUMI_STACK_NAME }}
-          comment-on-pr: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           work-dir: ${{ env.PULUMI_WORKING_DIRECTORY }}
 
       - name: Deploy Pulumi Update 🚀
