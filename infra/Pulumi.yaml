@@ -1,0 +1,4 @@
+name: etc-wordpress
+runtime:
+  name: python
+description: Infrastructure-as-Code for the ETCollective Website
