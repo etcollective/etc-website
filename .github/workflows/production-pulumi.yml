@@ -12,6 +12,7 @@ on:
 env:
   PULUMI_ACCESS_TOKEN: "${{ secrets.PULUMI_ACCESS_TOKEN }}"
   PULUMI_WORKING_DIRECTORY: infra
+  GOOGLE_CREDENTIALS: "${{ secrets.GOOGLE_CREDENTIALS }}"
 
 jobs:
   pulumi:
@@ -49,6 +50,18 @@ jobs:
         uses: google-github-actions/auth@v2.0.0
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Configure GCP Cred Helper 🤝
+        id: cred-helper
+        run: gcloud auth configure-docker us-west1-docker.pkg.dev
+
+      - name: Docker Auth 🐋
+        id: docker-auth
+        uses: 'docker/login-action@v3'
+        with:
+          registry: us-west-1-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GOOGLE_CREDENTIALS }}
 
       - name: Pulumi Preview 🕵️
         if: ${{ github.event_name == 'pull_request' }}
