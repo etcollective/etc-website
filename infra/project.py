@@ -18,6 +18,8 @@ apis = [
     'artifactregistry.googleapis.com',
     'iamcredentials.googleapis.com',
     'cloudresourcemanager.googleapis.com',
+    'serviceusage.googleapis.com',
+    'iam.googleapis.com',
 ]
 
 # Setup Project
