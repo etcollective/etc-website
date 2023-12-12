@@ -1,6 +1,5 @@
 import pulumi
 import pulumi_gcp as gcp
-
 from project import project, service
 
 # Setup Config

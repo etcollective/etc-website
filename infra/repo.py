@@ -1,7 +1,6 @@
 import pulumi
-import pulumi_gcp as gcp
 import pulumi_docker as docker
-
+import pulumi_gcp as gcp
 from project import project, pulumi_stack, service
 
 # Setup Vars
@@ -27,12 +26,10 @@ repo_url = pulumi.Output.all(
 docker_image = docker.Image(
     'wordpress-image',
     build=docker.DockerBuildArgs(
-        context='../',
-        dockerfile='../Dockerfile',
-        platform='linux/amd64'
+        context='../', dockerfile='../Dockerfile', platform='linux/amd64'
     ),
     image_name=repo_url.apply(lambda url: f'{url}/website:latest'),
-    opts=pulumi.ResourceOptions(parent=docker_repo)
+    opts=pulumi.ResourceOptions(parent=docker_repo),
 )
 
 # Setup Outputs

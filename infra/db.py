@@ -1,9 +1,8 @@
 import pulumi
 import pulumi_gcp as gcp
-from pulumi_random import RandomPassword
-
 from network import network
 from project import project, service
+from pulumi_random import RandomPassword
 
 # Setup Config / Vars
 stack = pulumi.get_stack()
