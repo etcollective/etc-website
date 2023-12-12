@@ -16,6 +16,10 @@ FROM wordpress:${WP_VERSION}-php${PHP_VERSION}-apache as wpbase
 ## Copy CLI Installations
 COPY --chown=www-data:www-data --from=wp_cli_builder /usr/local/bin/wp /usr/local/bin/wp
 
+## Remove Default Themes and Plugins
+RUN rm -rf /usr/src/wordpress/wp-content/themes/* \
+    rm -rf /usr/src/wordpress/wp-content/plugins/*
+
 # Setup Customizations
 FROM wpbase
 
