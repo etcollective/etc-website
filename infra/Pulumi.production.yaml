@@ -6,6 +6,8 @@ config:
     secure: AAABAC3CuZn+85pa+YvGtuWCnbqHZq8R6YGL5Pilio8NSt7cNIfMOSXHGpAABh+KkBTzUg==
   etc-wordpress:folderId: "750546937644"
   etc-wordpress:image: us-west1-docker.pkg.dev/etc-wordpress-site-production/website-staging/website:latest
+  etc-wordpress:max-instance-count: "2"
+  etc-wordpress:min-instance-count: "1"
   etc-wordpress:url: https://etcollective.org
   etc-wordpress:zone: etcollective.org
   gcp:project: etc-wordpress-site-production

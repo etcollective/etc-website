@@ -1,8 +1,7 @@
 import pulumi
+import pulumi_cloudflare as cloudflare
 import pulumi_gcp as gcp
 import pulumi_google_native as gcp_native
-import pulumi_cloudflare as cloudflare
-
 from cloud_run import region, service
 from project import project, pulumi_stack
 

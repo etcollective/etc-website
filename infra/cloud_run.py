@@ -1,9 +1,9 @@
 import pulumi_gcp as gcp
-from pulumi import Config, Output, ResourceOptions, export, get_stack
-
 from db import database, instance, secret, user
 from project import project, service
+from pulumi import Config, Output, ResourceOptions, export, get_stack
 from repo import docker_image
+from storage import assets_bucket
 
 # Setup Vars
 gcp_config = Config('gcp')
@@ -15,6 +15,8 @@ stack = get_stack()
 cpu_limit = config.get('cpu-limit') or '1000m'
 memory_limit = config.get('memory-limit') or '512Mi'
 url = config.get('url') or zone
+max_instance_count = config.get_int('max-instance-count') or 1
+min_instance_count = config.get_int('min-instance-count') or 0
 
 # WordPress Config
 wp_config_extra = {
@@ -29,6 +31,8 @@ wp_config_extra = {
     ## WP Stateless Plugin
     'WP_STATELESS_MEDIA_CACHE_BUSTING': 'true',
     'WP_STATELESS_MEDIA_MODE': 'ephemeral',
+    'WP_STATELESS_MEDIA_BUCKET': f'{stack}-website-assets',
+    'WP_STATELESS_MEDIA_BODY_REWRITE': 'true',
 }
 
 
@@ -71,7 +75,8 @@ db_access = gcp.projects.IAMBinding(
 )
 
 # Setup Cloud Run Service
-volume_name = 'wp-files'
+volume_name = 'wp-data'
+
 service = gcp.cloudrunv2.Service(
     'wordpress-cloudrun-service',
     location=region,
@@ -86,8 +91,8 @@ service = gcp.cloudrunv2.Service(
     template=gcp.cloudrunv2.ServiceTemplateArgs(
         service_account=cloud_run_sa.email,
         scaling=gcp.cloudrunv2.ServiceTemplateScalingArgs(
-            min_instance_count=0,
-            max_instance_count=1,
+            min_instance_count=min_instance_count,
+            max_instance_count=max_instance_count,
         ),
         execution_environment='EXECUTION_ENVIRONMENT_GEN2',
         containers=[
@@ -133,23 +138,23 @@ service = gcp.cloudrunv2.Service(
                 ],
                 volume_mounts=[
                     gcp.cloudrunv2.ServiceTemplateContainerVolumeMountArgs(
+                        name=volume_name, mount_path='/var/www/html'
+                    ),
+                    gcp.cloudrunv2.ServiceTemplateContainerVolumeMountArgs(
                         name='cloudsql',
                         mount_path='/cloudsql',
                     ),
-                    # gcp.cloudrunv2.ServiceTemplateContainerVolumeMountArgs(
-                    #     name=volume_name, mount_path='/var/www/html'
-                    # ),
                 ],
             ),
         ],
         volumes=[
+            gcp.cloudrunv2.ServiceTemplateVolumeArgs(name=volume_name),
             gcp.cloudrunv2.ServiceTemplateVolumeArgs(
                 name='cloudsql',
                 cloud_sql_instance=gcp.cloudrunv2.ServiceTemplateVolumeCloudSqlInstanceArgs(
                     instances=[instance.connection_name],
                 ),
             ),
-            # gcp.cloudrunv2.ServiceTemplateVolumeArgs(name=volume_name),
         ],
         # vpc_access=gcp.cloudrunv2.ServiceTemplateVpcAccessArgs(
         #     egress='ALL_TRAFFIC',
