@@ -1,5 +1,5 @@
 ARG PHP_VERSION=8.3
-ARG WP_VERSION=6.4.2
+ARG WP_VERSION=6.4.3
 
 FROM php:${PHP_VERSION}-apache as wp_cli_builder
 
