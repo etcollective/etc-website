@@ -288,11 +288,9 @@ if ( ! class_exists( 'Bsf_Custom_Fonts_Render' ) ) :
 			}
 
 			if ( ! empty( $font_styles ) ) {
-				?>
-					<style type="text/css" id="cst_font_data">
-						<?php echo wp_strip_all_tags( $font_styles ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</style>
-				<?php
+				wp_register_style( 'cf-frontend-style', false, array(), BSF_CUSTOM_FONTS_VER );
+				wp_enqueue_style( 'cf-frontend-style' );
+				wp_add_inline_style( 'cf-frontend-style', wp_strip_all_tags( $font_styles ) );
 			}
 		}
 

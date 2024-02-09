@@ -1,3 +1,28 @@
+#### 3.4.0
+* ENHANCEMENT - removed `udx/lib-settings` package dependency for security reasons. 
+* ENHANCEMENT - removed `udx/lib-utility` package dependency for security reasons.
+* ENHANCEMENT - refactored `Settings` admin page to remove Angular dependency.
+* ENHANCEMENT - including Software Bill of Materials (SBOM) to GitHub release.
+* FIX - updated package dependencies for Google Client Library for security reasons.
+* FIX - replaced `utf8_encode` with `mb_convert_encoding` to support PHP 8.2 and above [#678](https://github.com/udx/wp-stateless/issues/678).
+* FIX - Fatal Error in `Stateless` mode if GCP access credentials are wrong [#693](https://github.com/udx/wp-stateless/issues/693).
+* COMPATIBILITY - preventing PHP warnings while working with WooCommerce version 8.4.0 and above [696](https://github.com/udx/wp-stateless/issues/696).
+* COMPATIBILITY - avoiding conflicts between builtin compatibilities and WP-Stateless Addon plugins.
+
+#### 3.3.0
+* NEW - Added new filter `wp_stateless_attachment_url`. Allows to customize attachment URL after WP-Stateless generates it based on it's internal conditions.
+* FIX - Stateless mode Incompatible with Media Uploader in Media Library Grid mode [#675](https://github.com/udx/wp-stateless/issues/675).
+* FIX - Prevent duplicating messages in Admin Panel.
+* COMPATIBILITY - Dynamic Image Support is now part of the core.
+* COMPATIBILITY - Google App Engine is now part of the core. Automatically enables **Stateless** mode when Google App Engine detected. Can be disabled using `WP_STATELESS_COMPATIBILITY_GAE` constant.
+* COMPATIBILITY - Removed compatibility with "Advanced Custom Fields: Image Crop Add-on", because plugin is deprecated.
+* COMPATIBILITY - Removed compatibility with "VidoRev" plugin.
+* COMPATIBILITY - Removed compatibility with "WP Retina 2x" plugin.
+* ENHANCEMENT - Updated Client library for Google APIs from 2.15.0 to 2.15.1.
+* ENHANCEMENT - Updated Meta Box library from 5.6.3 to 5.8.2.
+* ENHANCEMENT - Updated Meta Box Tabs to version 1.1.17.
+* ENHANCEMENT - Updated PHP JWT library from 6.6.0 to 6.9.0.
+
 #### 3.2.5
 * FIX - Folder setting does not allow custom structure [#608](https://github.com/udx/wp-stateless/issues/608).
 * FIX - Stateless mode Incompatible with Inline Uploader [#675](https://github.com/udx/wp-stateless/issues/675).
@@ -49,9 +74,9 @@
 #### 3.1.0
 
 - NEW - Completely rewritten the synchronization tool. GitHub issue [#523](https://github.com/udx/wp-stateless/issues/523).
-- NEW - New configuration constant `WP_STATELESS_SYNC_MAX_BATCH_SIZE`. Sets the maximum size of a background sync batch of items to be saved in a single row in the database. [More details](https://wp-stateless.github.io/docs/constants/#wp_stateless_sync_max_batch_size).
-- NEW - New configuration constant `WP_STATELESS_SYNC_LOG`. Sets a path to a log file where to output logging information during the background sync. [More details](https://wp-stateless.github.io/docs/constants/#wp_stateless_sync_log).
-- NEW - New configuration constant `WP_STATELESS_SYNC_HEALTHCHECK_INTERVAL`. Defines an interval in minutes for a cron task that periodically checks the health of a particular background sync process. [More details](https://wp-stateless.github.io/docs/constants/#wp_stateless_sync_healthcheck_interval).
+- NEW - New configuration constant `WP_STATELESS_SYNC_MAX_BATCH_SIZE`. Sets the maximum size of a background sync batch of items to be saved in a single row in the database. [More details](https://stateless.udx.io/docs/constants/#wp_stateless_sync_max_batch_size).
+- NEW - New configuration constant `WP_STATELESS_SYNC_LOG`. Sets a path to a log file where to output logging information during the background sync. [More details](https://stateless.udx.io/docs/constants/#wp_stateless_sync_log).
+- NEW - New configuration constant `WP_STATELESS_SYNC_HEALTHCHECK_INTERVAL`. Defines an interval in minutes for a cron task that periodically checks the health of a particular background sync process. [More details](https://stateless.udx.io/docs/constants/#wp_stateless_sync_healthcheck_interval).
 - FIX - Fixed an issue when original files were not deleted from the server in the Ephemeral mode. GitHub issue [#484](https://github.com/udx/wp-stateless/issues/484).
 - FIX - Fixed an incorrect behavior of image `srcset` attribute in the Backup mode. GitHub issue [#558](https://github.com/udx/wp-stateless/issues/558).
 - COMPATIBILITY - Litespeed Cache - Fixed an incorrect upload folder determination. GitHub issue [#527](https://github.com/udx/wp-stateless/issues/527).

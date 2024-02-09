@@ -323,6 +323,7 @@ class WPCode_Admin_Page_Code_Snippets extends WPCode_Admin_Page {
 		$button_url      = add_query_arg(
 			array(
 				'page' => 'wpcode-settings',
+				'view' => 'errors',
 			),
 			admin_url( 'admin.php' )
 		);

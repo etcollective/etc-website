@@ -1106,4 +1106,13 @@ class WPCode_Snippet {
 		 */
 		do_action( 'wpcode_after_snippet_duplicated', $this );
 	}
+
+	/**
+	 * Get the edit url for this snippet.
+	 *
+	 * @return string
+	 */
+	public function get_edit_url() {
+		return admin_url( 'admin.php?page=wpcode-snippet-manager&snippet_id=' . absint( $this->get_id() ) );
+	}
 }

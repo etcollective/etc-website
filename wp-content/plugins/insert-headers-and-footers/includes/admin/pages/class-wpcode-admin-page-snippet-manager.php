@@ -11,6 +11,7 @@
 class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 
 	use WPCode_Revisions_Display_Lite;
+
 	/**
 	 * The page slug to be used when adding the submenu.
 	 *
@@ -447,6 +448,8 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 			'after_paragraph'     => __( 'after paragraph number', 'insert-headers-and-footers' ),
 			'archive_before_post' => __( 'before post number', 'insert-headers-and-footers' ),
 			'archive_after_post'  => __( 'after post number', 'insert-headers-and-footers' ),
+			'after_words'         => __( 'minimum number of words', 'insert-headers-and-footers' ),
+			'every_words'         => __( 'number of words', 'insert-headers-and-footers' ),
 		);
 		$markup       = '';
 		foreach ( $descriptions as $value => $description ) {
@@ -880,7 +883,7 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 			return;
 		}
 		?>
-		<form action="<?php echo esc_url( $this->get_page_action_url() ); ?>" method="post" id="wpcode-snippet-manager-form">
+		<form action="<?php echo esc_url( $this->get_page_action_url() ); ?>" method="post" id="wpcode-snippet-manager-form" autocomplete="off">
 			<?php parent::output(); ?>
 		</form>
 		<?php
@@ -1241,8 +1244,9 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 				$markup = sprintf( '<input type="text" class="wpcode-input-text wpcode-input-datetime" value="%s" />', esc_attr( $value ) );
 				break;
 			case 'ajax':
-				$options = isset( $data['labels_callback'] ) ? $data['labels_callback']( $value ) : array();
-				$markup  = '<select class="wpcode-select2-ajax" data-action="' . esc_attr( $data['options'] ) . '" multiple>';
+				$options  = isset( $data['labels_callback'] ) ? $data['labels_callback']( $value ) : array();
+				$multiple = isset( $data['multiple'] ) && $data['multiple'] ? 'multiple' : '';
+				$markup   = '<select class="wpcode-select2-ajax" data-action="' . esc_attr( $data['options'] ) . '" ' . $multiple . '>';
 				foreach ( $options as $option ) {
 					$markup .= '<option value="' . esc_attr( $option['value'] ) . '" ' . selected( true, true, false ) . '>' . esc_html( $option['label'] ) . '</option>';
 				}
@@ -1828,11 +1832,9 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 		if ( empty( $last_error ) ) {
 			return;
 		}
-		$error_line = isset( $last_error['error_line'] ) ? $last_error['error_line'] : false;
-		$time       = $last_error['time'];
-		// Let's show just the first line in the $last_error['message'].
-		$last_error['message'] = explode( "\n", $last_error['message'] );
-		$logging_enabled       = wpcode()->settings->get_option( 'error_logging' );
+		$error_line      = isset( $last_error['error_line'] ) ? $last_error['error_line'] : false;
+		$time            = $last_error['time'];
+		$logging_enabled = wpcode()->settings->get_option( 'error_logging' );
 		if ( $logging_enabled ) {
 			$button_text = esc_html__( 'View Error Logs', 'insert-headers-and-footers' );
 			$button_url  = add_query_arg(
@@ -1847,6 +1849,7 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 			$button_url  = add_query_arg(
 				array(
 					'page' => 'wpcode-settings',
+					'view' => 'errors',
 				),
 				admin_url( 'admin.php' )
 			);
@@ -1884,18 +1887,7 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 				printf( '<strong>%s</strong>', esc_html__( 'Error message:', 'insert-headers-and-footers' ) );
 				?>
 			</p>
-			<pre class="wpcode-error-preview"><?php echo esc_html( $last_error['message'][0] ); ?></pre>
-			<?php if ( ! empty( $last_error['url'] ) ) { ?>
-				<p>
-					<?php
-					printf(
-					// Translators: The placeholder is replaced with the URL where the error happened.
-						esc_html__( 'The error was triggered at the following URL: %1$s', 'insert-headers-and-footers' ),
-						'<a href=' . esc_url( $last_error['url'] ) . ' target="_blank" rel="noopener noreferrer">' . esc_url( $last_error['url'] ) . '</a>'
-					);
-					?>
-				</p>
-			<?php } ?>
+			<pre class="wpcode-error-preview"><?php echo esc_html( wpcode()->error->get_error_message_short( $last_error['message'] ) ); ?></pre>
 			<?php if ( $error_line ) { ?>
 				<p>
 					<?php
@@ -1905,6 +1897,18 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 						'<strong>',
 						'</strong>',
 						absint( $error_line )
+					);
+					?>
+				</p>
+			<?php } ?>
+
+			<?php if ( ! empty( $last_error['url'] ) ) { ?>
+				<p>
+					<?php
+					printf(
+					// Translators: The placeholder is replaced with the URL where the error happened.
+						esc_html__( 'The error was triggered at the following URL: %1$s', 'insert-headers-and-footers' ),
+						'<a href=' . esc_url( $last_error['url'] ) . ' target="_blank" rel="noopener noreferrer">' . esc_url( $last_error['url'] ) . '</a>'
 					);
 					?>
 				</p>

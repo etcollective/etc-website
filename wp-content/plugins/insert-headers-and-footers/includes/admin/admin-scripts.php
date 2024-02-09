@@ -109,6 +109,10 @@ function wpcode_admin_body_class( $classes ) {
 
 	if ( 'wpcode' === $page_parent ) {
 		$classes .= ' wpcode-admin-page';
+
+		if ( ! empty( wpcode()->settings->get_option( 'dark_mode' ) ) ) {
+			$classes .= ' wpcode-dark-mode';
+		}
 	}
 
 	return $classes;

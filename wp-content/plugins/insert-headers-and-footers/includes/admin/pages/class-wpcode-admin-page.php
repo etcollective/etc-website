@@ -402,12 +402,13 @@ abstract class WPCode_Admin_Page {
 	 * @return void
 	 */
 	public function logo_image( $id = 'wpcode-header-logo' ) {
-		$logo_src = WPCODE_PLUGIN_URL . 'admin/images/wpcode-logo.png';
-		// Translators: This simply adds the plugin name before the logo text.
-		$alt = sprintf( __( '%s logo', 'insert-headers-and-footers' ), 'WPCode' )
-		?>
-		<img src="<?php echo esc_url( $logo_src ); ?>" width="132" alt="<?php echo esc_attr( $alt ); ?>" id="<?php echo esc_attr( $id ); ?>"/>
-		<?php
+		$logo = get_wpcode_icon( 'logo-text', 132, 33, '0 0 132 33' );
+
+		if ( wpcode()->settings->get_option( 'dark_mode' ) ) {
+			$logo = str_replace( '11293E', 'CCCCCC', $logo );
+		}
+
+		echo wp_kses( $logo, wpcode_get_icon_allowed_tags() );
 	}
 
 	/**
@@ -594,7 +595,7 @@ abstract class WPCode_Admin_Page {
 		<div class="wpcode-metabox">
 			<div class="wpcode-metabox-title">
 				<div class="wpcode-metabox-title-text">
-					<?php echo esc_html( $title ); ?>
+					<?php echo wp_kses_post( $title ); ?>
 					<?php $this->help_icon( $help ); ?>
 				</div>
 				<div class="wpcode-metabox-title-toggle">
@@ -1281,5 +1282,58 @@ abstract class WPCode_Admin_Page {
 			wp_safe_redirect( admin_url( 'admin.php?page=wpcode-click' ) );
 			exit;
 		}
+	}
+
+	/**
+	 * Get a text field markup.
+	 *
+	 * @param string $id The id of the text field.
+	 * @param string $value The value of the text field.
+	 * @param string $description The description of the text field.
+	 * @param bool   $wide Whether the text field should be wide.
+	 * @param string $type The type of the text field.
+	 *
+	 * @return string
+	 */
+	public function get_input_text( $id, $value = '', $description = '', $wide = false, $type = 'text' ) {
+		$allowed_types = array(
+			'text',
+			'email',
+			'url',
+			'number',
+			'password',
+		);
+		if ( in_array( $type, $allowed_types, true ) ) {
+			$type = esc_attr( $type );
+		} else {
+			$type = 'text';
+		}
+		$class = 'wpcode-regular-text';
+		if ( $wide ) {
+			$class .= ' wpcode-wide-text';
+		}
+		if ( 'text' !== $type ) {
+			$class .= ' wpcode-input-' . $type;
+		}
+		$markup = '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $id ) . '" value="' . esc_attr( $value ) . '" class="' . esc_attr( $class ) . '" autocomplete="off">';
+		if ( ! empty( $description ) ) {
+			$markup .= '<p>' . wp_kses_post( $description ) . '</p>';
+		}
+
+		return $markup;
+	}
+
+	/**
+	 * Get an email field.
+	 *
+	 * @param string $id The id of the text field.
+	 * @param string $value The value of the text field.
+	 * @param string $description The description of the text field.
+	 * @param bool   $wide Whether the text field should be wide.
+	 *
+	 * @return string
+	 */
+	public function get_input_email( $id, $value = '', $description = '', $wide = false ) {
+		return $this->get_input_text( $id, $value, $description, $wide, 'email' );
 	}
 }
