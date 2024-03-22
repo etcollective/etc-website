@@ -14,7 +14,6 @@ use Google\Site_Kit\Core\Modules\Module_Settings;
 use Google\Site_Kit\Core\Storage\Setting_With_Owned_Keys_Interface;
 use Google\Site_Kit\Core\Storage\Setting_With_Owned_Keys_Trait;
 use Google\Site_Kit\Core\Storage\Setting_With_ViewOnly_Keys_Interface;
-use Google\Site_Kit\Core\Util\Feature_Flags;
 use Google\Site_Kit\Core\Util\Method_Proxy_Trait;
 
 /**
@@ -77,7 +76,7 @@ class Settings extends Module_Settings implements Setting_With_Owned_Keys_Interf
 	 * @return array An array of keys for view-only settings.
 	 */
 	public function get_view_only_keys() {
-		return array( 'availableCustomDimensions' );
+		return array( 'availableCustomDimensions', 'adSenseLinked' );
 	}
 
 	/**
@@ -92,19 +91,19 @@ class Settings extends Module_Settings implements Setting_With_Owned_Keys_Interf
 			'ownerID'                   => 0,
 			'accountID'                 => '',
 			'adsConversionID'           => '',
-			'adsenseLinked'             => false,
 			'propertyID'                => '',
 			'webDataStreamID'           => '',
 			'measurementID'             => '',
 			'trackingDisabled'          => array( 'loggedinUsers' ),
 			'useSnippet'                => true,
-			'canUseSnippet'             => true,
 			'googleTagID'               => '',
 			'googleTagAccountID'        => '',
 			'googleTagContainerID'      => '',
 			'googleTagLastSyncedAtMs'   => 0,
 			'availableCustomDimensions' => null,
 			'propertyCreateTime'        => 0,
+			'adSenseLinked'             => false,
+			'adSenseLinkedLastSyncedAt' => 0,
 		);
 	}
 
@@ -121,9 +120,6 @@ class Settings extends Module_Settings implements Setting_With_Owned_Keys_Interf
 				if ( isset( $option['useSnippet'] ) ) {
 					$option['useSnippet'] = (bool) $option['useSnippet'];
 				}
-				if ( isset( $option['canUseSnippet'] ) ) {
-					$option['canUseSnippet'] = (bool) $option['canUseSnippet'];
-				}
 				if ( isset( $option['googleTagID'] ) ) {
 					if ( ! preg_match( '/^(G|GT|AW)-[a-zA-Z0-9]+$/', $option['googleTagID'] ) ) {
 						$option['googleTagID'] = '';
@@ -136,9 +132,6 @@ class Settings extends Module_Settings implements Setting_With_Owned_Keys_Interf
 					} else {
 						$option['trackingDisabled'] = (array) $option['trackingDisabled'];
 					}
-				}
-				if ( isset( $option['adsenseLinked'] ) ) {
-					$option['adsenseLinked'] = (bool) $option['adsenseLinked'];
 				}
 
 				$numeric_properties = array( 'googleTagAccountID', 'googleTagContainerID' );
@@ -162,6 +155,16 @@ class Settings extends Module_Settings implements Setting_With_Owned_Keys_Interf
 						$option['availableCustomDimensions'] = array_values( $valid_dimensions );
 					} else {
 						$option['availableCustomDimensions'] = null;
+					}
+				}
+
+				if ( isset( $option['adSenseLinked'] ) ) {
+					$option['adSenseLinked'] = (bool) $option['adSenseLinked'];
+				}
+
+				if ( isset( $option['adSenseLinkedLastSyncedAt'] ) ) {
+					if ( ! is_int( $option['adSenseLinkedLastSyncedAt'] ) ) {
+						$option['adSenseLinkedLastSyncedAt'] = 0;
 					}
 				}
 			}
@@ -192,8 +195,6 @@ class Settings extends Module_Settings implements Setting_With_Owned_Keys_Interf
 		$keys_to_check      = array(
 			'accountID',
 			'adsConversionID',
-			'adsenseLinked',
-			'canUseSnippet',
 			'trackingDisabled',
 		);
 		$missing_settings   = array_diff( $keys_to_check, array_keys( $option ) );

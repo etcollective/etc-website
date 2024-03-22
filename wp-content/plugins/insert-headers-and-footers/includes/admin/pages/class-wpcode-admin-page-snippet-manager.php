@@ -63,6 +63,20 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 	protected $snippet;
 
 	/**
+	 * Whether the snippet is currently edited by someone else.
+	 *
+	 * @var bool
+	 */
+	protected $is_locked = false;
+
+	/**
+	 * The name of user who locked the snippet.
+	 *
+	 * @var string
+	 */
+	protected $locked_by;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -70,6 +84,33 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 		$this->page_title = sprintf( __( 'Add %s Snippet', 'insert-headers-and-footers' ), 'WPCode' );
 		$this->menu_title = sprintf( '+ %s', __( 'Add Snippet', 'insert-headers-and-footers' ) );
 		parent::__construct();
+	}
+
+	/**
+	 * Load the snippet if we're editing one.
+	 *
+	 * @return void
+	 */
+	public function load_snippet() {
+		if ( isset( $_GET['snippet_id'] ) ) {
+			$snippet_post = get_post( absint( $_GET['snippet_id'] ) );
+			if ( ! is_null( $snippet_post ) && $this->get_post_type() === $snippet_post->post_type ) {
+				$this->snippet_id = $snippet_post->ID;
+				$this->snippet    = wpcode_get_snippet( $snippet_post );
+
+				// Let's check if it's not already being edited by someone else.
+				$snippet_locked = wp_check_post_lock( $this->snippet_id );
+				if ( $snippet_locked ) {
+					$locked_by = get_user_by( 'id', $snippet_locked );
+					if ( $locked_by ) {
+						$this->locked_by = $locked_by->display_name;
+						$this->is_locked = true;
+					}
+				} else {
+					wp_set_post_lock( $this->snippet_id );
+				}
+			}
+		}
 	}
 
 	/**
@@ -81,11 +122,7 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 		$this->can_edit = current_user_can( 'wpcode_edit_snippets' );
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['snippet_id'] ) ) {
-			$snippet_post = get_post( absint( $_GET['snippet_id'] ) );
-			if ( ! is_null( $snippet_post ) && 'wpcode' === $snippet_post->post_type ) {
-				$this->snippet_id = $snippet_post->ID;
-				$this->snippet    = new WPCode_Snippet( $snippet_post );
-			}
+			$this->load_snippet();
 			// If the post type does not match the page will act as an add new snippet page, the id will be ignored.
 		} elseif ( ! isset( $_GET['custom'] ) ) {
 			$this->show_library = apply_filters( 'wpcode_add_snippet_show_library', true );
@@ -1013,8 +1050,7 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 			$attributes = array();
 		}
 
-
-		$snippet = new WPCode_Snippet(
+		$snippet = wpcode_get_snippet(
 			array(
 				'id'                   => empty( $_REQUEST['id'] ) ? 0 : absint( $_REQUEST['id'] ),
 				'title'                => isset( $_POST['wpcode_snippet_title'] ) ? sanitize_text_field( wp_unslash( $_POST['wpcode_snippet_title'] ) ) : '',
@@ -1374,6 +1410,7 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 			$data['conditions'] = wpcode()->conditional_logic->get_all_admin_options();
 		}
 
+		$data['snippet_id']             = isset( $this->snippet_id ) ? $this->snippet_id : 0;
 		$data['save_to_library_url']    = wpcode_utm_url( 'https://wpcode.com/lite/', 'snippet-editor', 'save-to-library', 'upgrade-to-pro' );
 		$data['save_to_library_title']  = __( 'Save to Library is a Pro Feature', 'insert-headers-and-footers' );
 		$data['save_to_library_text']   = __( 'Upgrade to PRO today and save your private snippets to the WPCode library for easy access. You can also share your snippets with other users or load them on other sites.', 'insert-headers-and-footers' );
@@ -1411,6 +1448,10 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 		$data['cl_labels_custom']   = $this->get_conditional_logic_operators_custom_labels();
 		$data['error_line']         = $error_line;
 		$data['error_line_message'] = esc_html__( 'The snippet has been recently deactivated due to an error on this line', 'insert-headers-and-footers' );
+		$data['is_locked']          = $this->is_locked;
+		$data['locked_by']          = $this->locked_by;
+		// Translators: The name of the user that is currently editing the snippet is appended at the end.
+		$data['edited'] = esc_html__( 'This snippet is currently being edited by ', 'insert-headers-and-footers' );
 
 		return $data;
 	}
@@ -1827,6 +1868,18 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 	public function maybe_show_error_notice() {
 		if ( ! isset( $this->snippet ) ) {
 			return;
+		}
+		if ( $this->is_locked ) {
+			?>
+			<div class="notice-warning fade notice is-dismissible">
+				<p>
+					<?php
+					// Translators: The placeholder gets replaced with the display name of the user currently editing the snippet.
+					printf( esc_html__( 'Notice: %1$s is also editing this snippet. Please be aware that your changes could be overwritten.', 'insert-headers-and-footers' ), esc_html( $this->locked_by ) );
+					?>
+				</p>
+			</div>
+			<?php
 		}
 		$last_error = $this->snippet->get_last_error();
 		if ( empty( $last_error ) ) {

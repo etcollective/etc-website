@@ -14,6 +14,13 @@ services:
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_SITEURL', 'https://wordpress.etc-website-image.orb.local');
+        define('WP_HOME', 'https://wordpress.etc-website-image.orb.local');
+        define('WP_STATELESS_MEDIA_CACHE_BUSTING', 'true');
+        define('WP_STATELESS_MEDIA_MODE', 'ephemeral');
+        define('WP_STATELESS_MEDIA_BUCKET', 'production-website-assets');
+        define('WP_STATELESS_MEDIA_BODY_REWRITE', 'true');
     volumes:
       - ./wp-content/bcf-fonts:/var/www/html/wp-content/bcf-fonts
       - ./wp-content/plugins:/var/www/html/wp-content/plugins

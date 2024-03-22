@@ -14,6 +14,8 @@ add_action( 'wp_ajax_wpcode_search_terms', 'wpcode_search_terms' );
 add_action( 'wp_ajax_wpcode_generate_snippet', 'wpcode_generate_snippet' );
 add_action( 'wp_ajax_wpcode_save_generated_snippet', 'wpcode_save_generated_snippet' );
 add_action( 'wp_ajax_wpcode_verify_ssl', 'wpcode_verify_ssl' );
+add_filter( 'heartbeat_received', 'wpcode_heartbeat_data', 10, 3 );
+
 
 /**
  * Handles toggling a snippet status from the admin.
@@ -29,7 +31,7 @@ function wpcode_update_snippet_status() {
 	$snippet_id = absint( $_POST['snippet_id'] );
 	$active     = isset( $_POST['active'] ) && 'true' === $_POST['active'];
 
-	$snippet = new WPCode_Snippet( $snippet_id );
+	$snippet = wpcode_get_snippet( $snippet_id );
 
 	if ( ! current_user_can( 'wpcode_activate_snippets', $snippet ) ) {
 		wpcode()->error->add_error(
@@ -229,4 +231,22 @@ function wpcode_verify_ssl() {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 		)
 	);
+}
+
+/**
+ * Use heartbeat to update lock status when editing a snippet.
+ *
+ * @param $response
+ * @param $data
+ * @param $screen_id
+ *
+ * @return mixed
+ */
+function wpcode_heartbeat_data( $response, $data, $screen_id ) {
+	if ( 'code-snippets_page_wpcode-snippet-manager' === $screen_id && isset( $data['wpcode_lock'] ) ) {
+		// Update the post lock while they are still editing.
+		wp_set_post_lock( absint( $data['wpcode_lock'] ) );
+	}
+
+	return $response;
 }

@@ -7,5 +7,5 @@
  */
 
 return array(
-	'features' => array( 'gm3Components' ),
+	'features' => array( 'adsModule','audienceSegmentation','conversionInfra','ga4AdSenseIntegration','gm3Components' ),
 );
