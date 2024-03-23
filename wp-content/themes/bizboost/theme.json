@@ -97,22 +97,22 @@
 							"fontFamily": "Barlow",
 							"fontStretch": "",
 							"fontStyle": "normal",
-							"fontWeight": "500",
+							"fontWeight": "400",
 							"src": [
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-500-normal0.woff2",
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-500-normal1.woff2",
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-500-normal2.woff2"
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-400-normal0.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-400-normal1.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-400-normal2.woff2"
 							]
 						},
 						{
 							"fontFamily": "Barlow",
 							"fontStretch": "",
 							"fontStyle": "normal",
-							"fontWeight": "400",
+							"fontWeight": "500",
 							"src": [
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-400-normal0.woff2",
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-400-normal1.woff2",
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-400-normal2.woff2"
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-500-normal0.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-500-normal1.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-500-normal2.woff2"
 							]
 						},
 						{
@@ -121,9 +121,9 @@
 							"fontStyle": "normal",
 							"fontWeight": "700",
 							"src": [
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700-normal0.woff2",
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700-normal1.woff2",
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700-normal2.woff2"
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700-normal0.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700-normal1.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700-normal2.woff2"
 							]
 						},
 						{
@@ -132,9 +132,31 @@
 							"fontStyle": "italic",
 							"fontWeight": "700italic",
 							"src": [
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700italic-italic0.woff2",
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700italic-italic1.woff2",
-								"http://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700italic-italic2.woff2"
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700italic-italic0.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700italic-italic1.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-700italic-italic2.woff2"
+							]
+						},
+						{
+							"fontFamily": "Barlow",
+							"fontStretch": "",
+							"fontStyle": "italic",
+							"fontWeight": "500italic",
+							"src": [
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-500italic-italic0.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-500italic-italic1.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-500italic-italic2.woff2"
+							]
+						},
+						{
+							"fontFamily": "Barlow",
+							"fontStretch": "",
+							"fontStyle": "normal",
+							"fontWeight": "600",
+							"src": [
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-600-normal0.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-600-normal1.woff2",
+								"https://wordpress.etc-website-image.orb.local/wp-content/bcf-fonts/Barlow/barlow-600-normal2.woff2"
 							]
 						}
 					],
